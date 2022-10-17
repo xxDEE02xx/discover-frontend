@@ -94,7 +94,7 @@ const Datasets: FC = () => {
                       onClick={createSortHandler(header.id)}
                     >
                       {translate(header.label)}
-                      <Box component="span" sx={visuallyHidden}>
+                      <Box component="span" sx={{ ...visuallyHidden, margin: 0 }}>
                         sorted descending
                       </Box>
                     </TableSortLabel>
