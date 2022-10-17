@@ -1,0 +1,21 @@
+{
+  "DATASETS_PAGE_META_TITLE": "DISCOVER Datasets - Synthesis",
+  "DATASETS": "Datasets",
+  "SEARCH_INPUT_LABEL": "Search for a project name, client or tag",
+  "OPEN_DATASET": "Open Dataset",
+  "REUPLOAD": "Reupload",
+  "DATASETS_HEADER_SUBTITLE": "Uploaded datasets appear here. Once they’re ready, you can start running the topic model.",
+  "DATASET_NAME": "Dataset Name",
+  "DATASET_SOURCE": "Source",
+  "DATASET_DATE_ADDED": "Date Added",
+  "DATASET_OWNER": "Owner",
+  "DATASET_UPLOAD_STATUS": "Upload Status",
+  "DATASET_NUMBER_DOCUMENTS": "No. of Documents",
+  "DATASET_TAGS": "Tags",
+  "DATASET_UPLOAD_HISTORY": "Upload History",
+  "DATASETS_EMPTY_HEADER": "There aren’t any datasets here yet",
+  "DATASETS_EMPTY_DETAILS": "Ask a data scientist to upload one to the Discover tool, and you’ll see it here.",
+  "DATASETS_EMPTY_FILTER_HEADER": "We couldn’t find that dataset",
+  "DATASETS_EMPTY_FILTER_DETAILS": "Try another search term, e.g. the client name, project name, project code, or category.",
+  "DATASET_FAILED_UPLOAD_MESSAGE": "Ask a data scientist to reupload this dataset."
+}

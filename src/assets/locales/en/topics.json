@@ -1,0 +1,21 @@
+{
+  "TOPICS_PAGE_META_TITLE": "DISCOVER DATASET - Synthesis",
+  "DATASETS": "Datasets",
+  "SEARCH_KEYWORD_PLACEHOLDER": "Search within topics",
+  "JOB_SUB_HEADER": "{{ topics }} Topics  •  {{ documents }} Documents  •  {{ classified }}% Classified  •  <link>More details</link>",
+  "TOPIC_MORE_DETAILS": "More details",
+  "TOPIC_HISTOGRAM": "Topic Histogram",
+  "DATASET_404": "That dataset doesn’t exist.",
+  "DATASET_404_DETAILS": "Try using another one on the <link>Datasets Page</link>.",
+  "JOB_404": "That job doesn’t exist.",
+  "JOB_404_DETAILS": "Try using another one on the <link>Jobs Page</link>.",
+  "SUGGESTED_TOPICS": "Suggested Topics",
+  "TOPIC_SUB_TITLE": "{{ documents }} Documents ({{ classified }}%)",
+  "TOPICS_SORT": "Sort",
+  "TOPICS_LARGEST": "Largest topic",
+  "TOPICS_SMALLEST": "Smallest topic",
+  "TOPICS_EMPTY_HEADER": "This job doesn’t have any topic associated with it.",
+  "TOPICS_EMPTY_DETAILS": "Run a new topic modelling job to get started.",
+  "TOPICS_EMPTY_FILTER_HEADER": "We couldn’t find that topic",
+  "TOPICS_EMPTY_FILTER_DETAILS": "Try another search term, e.g. the client name, project name, project code, or category."
+}

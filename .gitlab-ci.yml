@@ -1,0 +1,148 @@
+image: node:16-alpine
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - when: always
+
+cache:
+  paths:
+    - node_modules/
+    - .yarn
+
+before_script:
+  - apt-get update -qq && apt-get install
+
+#include:
+#  - template: Auto-DevOps.gitlab-ci.yml
+
+variables:
+  CODE_QUALITY_DISABLED: 1
+
+.auto-deploy:
+  image: 'registry.gitlab.com/gitlab-org/cluster-integration/auto-deploy-image:v2.22.0'
+
+stages: # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - deploy
+  # - production
+
+dev-build-job: # This job runs in the build stage, which runs first.
+  stage: build
+  image: docker:19-dind
+  services:
+    - docker:19-dind
+  environment:
+    name: development
+  variables:
+    IMAGE_DISCOVER_FRONTEND: '$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA'
+    IMAGE_DISCOVER_FRONTEND_LATEST: '$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:latest'
+  script:
+    - echo $AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --tag $IMAGE_DISCOVER_FRONTEND --tag $IMAGE_DISCOVER_FRONTEND_LATEST $AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS .
+    - docker push $IMAGE_DISCOVER_FRONTEND
+    - docker push $IMAGE_DISCOVER_FRONTEND_LATEST
+  only:
+    - master
+
+prod-build-job: # This job runs in the build stage, which runs first.
+  stage: build
+  needs: []
+  image: docker:19-dind
+  services:
+    - docker:19-dind
+  environment:
+    name: production
+  variables:
+    IMAGE_DISCOVER_FRONTEND: '$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA'
+    IMAGE_DISCOVER_FRONTEND_LATEST: '$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:latest'
+  script:
+    - echo $AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --tag $IMAGE_DISCOVER_FRONTEND --tag $IMAGE_DISCOVER_FRONTEND_LATEST $AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS .
+    - docker push $IMAGE_DISCOVER_FRONTEND
+    - docker push $IMAGE_DISCOVER_FRONTEND_LATEST
+  only:
+    - master
+
+unit-test-job: # This job runs in the test stage.
+  stage: test # It only starts when the job in the build stage completes successfully.
+  needs: []
+  before_script:
+    - yarn config set cache-folder .yarn
+    - yarn install
+  script:
+    - echo "Unit testg... This will take about 1 minute or more."
+    - yarn test
+
+lint-test-job: # This job also runs in the test stage.
+  stage: test # It can run at the same time as unit-test-job (in parallel).
+  needs: []
+  before_script:
+    - yarn config set cache-folder .yarn
+    - yarn install
+  script:
+    - echo "Linting code... This will take about 10 seconds."
+    - yarn lint
+
+dev-deploy-job: # This job runs in the deploy stage.
+  stage: deploy # It only runs when *both* jobs in the test stage complete successfully.
+  extends: .auto-deploy
+  allow_failure: false
+  environment:
+    name: development
+    url: https://$SERVICE_PREFIX.$KUBE_INGRESS_BASE_DOMAIN
+  variables:
+    ROLLOUT_RESOURCE_TYPE: deployment
+  artifacts:
+    paths: [environment_url.txt]
+  script:
+    - echo $CI_COMMIT_SHA
+    - echo $CI_COMMIT_TAG
+    - echo $CI_APPLICATION_TAG
+    - echo $CI_REGISTRY_IMAGE
+    - echo $CI_COMMIT_REF_SLUG
+    - echo $AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS
+    - auto-deploy check_kube_domain
+    - auto-deploy use_kube_context
+    - auto-deploy download_chart
+    - auto-deploy ensure_namespace
+    - auto-deploy create_secret
+    - auto-deploy deploy
+    - auto-deploy delete canary
+    - auto-deploy delete rollout
+    - auto-deploy persist_environment_url
+  only:
+    - master
+# prod-deploy-job: # This job runs in the deploy stage.
+#   stage: production # It only runs when *both* jobs in the test stage complete successfully.
+#   extends: .auto-deploy
+#   allow_failure: false
+#   environment:
+#     name: production
+#     url: https://$SERVICE_PREFIX.$KUBE_INGRESS_BASE_DOMAIN
+#   variables:
+#     ROLLOUT_RESOURCE_TYPE: deployment
+#   artifacts:
+#     paths: [environment_url.txt]
+#   script:
+#     - echo $CI_COMMIT_SHA
+#     - echo $CI_COMMIT_TAG
+#     - echo $CI_APPLICATION_TAG
+#     - echo $CI_REGISTRY_IMAGE
+#     - echo $CI_COMMIT_REF_SLUG
+#     - auto-deploy check_kube_domain
+#     - auto-deploy use_kube_context
+#     - auto-deploy download_chart
+#     - auto-deploy ensure_namespace
+#     - auto-deploy create_secret
+#     - auto-deploy deploy
+#     - auto-deploy delete canary
+#     - auto-deploy delete rollout
+#     - auto-deploy persist_environment_url
+#   when: manual
+#   only:
+#     - master

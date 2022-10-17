@@ -1,0 +1,7 @@
+export enum STATUS {
+  SUCCESS = 'SUCCESS',
+  STARTED = 'STARTED',
+  PENDING = 'PENDING',
+  FAILED = 'FAILED',
+  REVOKED = 'REVOKED',
+}
